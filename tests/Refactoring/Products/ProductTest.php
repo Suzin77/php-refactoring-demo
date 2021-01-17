@@ -41,6 +41,32 @@ class ProductTest extends TestCase
     /**
      * @test
      */
+
+    public function cannotChangePriceIfNewPriceIsNullAndCounterIsPositive(): void
+    {
+        //expect
+        $this->expectException(\Exception::class);
+
+        $p = $this->productWithPriceAndCounter(BigDecimal::zero(),10);
+
+        $p->changePriceTo(null);
+    }
+
+    /**
+     * @test
+     */
+    public function canChangePriceToNewPriceIfCounterIsPositive(): void
+    {
+        $p = $this->productWithPriceAndCounter(BigDecimal::ten(),10);
+
+        $p->changePriceTo(BigDecimal::of(5));
+
+        $this->assertEquals(BigDecimal::of(5),$p->getPrice());
+    }
+
+    /**
+     * @test
+     */
     public function canFormatDescription(): void
     {
         //expect

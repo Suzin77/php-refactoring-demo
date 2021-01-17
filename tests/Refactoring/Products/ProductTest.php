@@ -26,6 +26,47 @@ class ProductTest extends TestCase
     /**
      * @test
      */
+    public function canIncrementCounterIfPriceIsPositiveAndCounterIsZero(): void
+    {
+        //given
+        $p = $this->productWithPriceAndCounter(BigDecimal::ten(), 0);
+
+        //when
+        $p->incrementCounter();
+
+        //then
+        $this->assertEquals(1, $p->getCounter());
+    }
+
+    /**
+     * @test
+     */
+    public function canDecrementCounterIfPriceIsPositiveAndCounterIsOne(): void
+    {
+        //given
+        $p = $this->productWithPriceAndCounter(BigDecimal::ten(), 1);
+
+        //when
+        $p->decrementCounter();
+
+        //then
+        $this->assertEquals(0, $p->getCounter());
+    }
+
+    /**
+     * @test
+     */
+    public function exceptionThrownWhenDecrementZeroCounter(): void
+    {
+        $p = $this->productWithPriceAndCounter(BigDecimal::ten(), 0);
+
+        $this->expectExceptionMessage("Negative counter");
+        $p->decrementCounter();
+    }
+
+    /**
+     * @test
+     */
     public function cannotChangePriceIfCounterIsNotPositive(): void
     {
         //given
@@ -89,6 +130,7 @@ class ProductTest extends TestCase
         //expect
         $this->assertEquals("zhort *** long", $p->formatDesc());
     }
+
 
     /**
      * @param BigDecimal $price

@@ -1,0 +1,57 @@
+
+
+Metody formatDesc, replaceCharFromDesc, changePriceTo powinny być wydzielone do osobnej klasy ponieważ dotyczą edycji modelu.
+Wydzieliłem logikę tych metod do klasy ProductEditor.php.
+ Jednak w  klasie modelu zostawiłem oryginalne klasy, zgodnie z zaleceniem w zadaniu aby interfejs pozostał taki sam.
+ Osobiście przeniósłbym je jednak całkowicie do innych klas.
+
+Metody incrementCounter, decrementCounter. Tutaj wydzieliłem logikę sprawdzania czy można wykonać daną czynność do klasy
+ProductValidator.php
+
+Refaktoring logiki:
+
+Ogólnie, gdzie można było zmieniłem $this->field na $this->getField()
+
+ decrementCounter
+  - przstawienie warunków aby najpierw sprawdzać czy dane są poprawne. Dzięki temu pozbyłem sie jednego if
+  - wydzielenie "$price != null && $price->getSign() > 0" do osobnej metody z opoisową nazwą
+  - skrócenie "$this->counter = $this->counter + 1" na $this->counter++
+
+incrementCounter
+  to samo co w decrementCounter
+
+Dwa warunki sprawdzania przy zmianie countera przeniosłem do osobnej metody validateCounterOperation()
+do klasy ProduktValidator.php
+
+changePriceTo
+    - zmian kolejności if co pozwoliło na zwiększenie czytelności.
+    - wydzielenie walidacji warunków do metody canChangePriceTo w ProductValidator.php
+    - wydzielenie warunku zmiany ceny "$price != null && $price->getSign() > 0" do osobnej metody isPriceValid() w ProductValidator.php
+
+replaceCharFromDesc
+    - wydzielenie logiki do ProductEditor.php
+    - ponieważ empty(null) zwraca true nie musimy sprawdzać $this->desc === null.
+    - taki sam warunek mamy w formatDesc() więc wydzieliłem go do osobnej metody isDescriptionNull()
+    - myślałem tutaj o wydzieleniu osobno edycji desc i longDesc, ale założyłem na podstawie kodu,
+    że oba opisy mają być zmieniane jednocześnie.
+
+    - nie rozbiłem też warunku  empty($product->getLongDesc()) || empty($product->getDesc())
+    na dwa zakładając że metoda ma być wykonywana gdy mamy obydwa opisy.
+    Chociaż osobiście bym to zmienił na zmiane znaku w opisie i zmianę znaku w długim opisie.
+
+
+formatDesc
+    - całą logika wydzielona do ProductEditor.
+    - dzieki uproszczeniu if oraz zmianie kolejności można zapisać prościej.
+    - logika z if wydzielona do isDescriptionNull()
+
+Dodane testy: canIncrementCounterIfPriceIsPositiveAndCounterIsZero,
+              canDecrementCounterIfPriceIsPositiveAndCounterIsOne,
+              exceptionThrownWhenDecrementZeroCounter
+              cannotChangePriceIfNewPriceIsNullAndCounterIsPositive
+              canChangePriceToNewPriceIfCounterIsPositive
+
+
+
+
+

@@ -89,25 +89,36 @@ class Product
         return $this->counter;
     }
 
+    public function setPrice(BigDecimal $price): void
+    {
+        $this->price = $price;
+    }
+
+    /**
+     * @param $longDesc
+     * @return void
+     */
+    public function setLongDesc(?string $longDesc): void
+    {
+        $this->longDesc = $longDesc;
+    }
+
+    /**
+     * @param string|null $desc
+     * @return void
+     */
+    public function setDesc(?string $desc): void
+    {
+        $this->desc = $desc;
+    }
+
     /**
      * @throws \Exception
      */
     public function decrementCounter(): void
     {
-        if ($this->price != null && $this->price->getSign() > 0) {
-            if ($this->counter === null) {
-                throw new \Exception("null counter");
-            }
-
-            $this->counter = $this->counter - 1;
-
-            if ($this->counter < 0) {
-                throw new \Exception("Negative counter");
-            }
-        } else {
-            throw new \Exception("Invalid price");
-
-        }
+        ProductValidator::canDecrementCounter($this);
+        $this->counter--;
     }
 
     /**
@@ -115,19 +126,8 @@ class Product
      */
     public function incrementCounter(): void
     {
-        if ($this->price != null && $this->price->getSign() > 0) {
-            if ($this->counter === null) {
-                throw new \Exception("null counter");
-            }
-
-            if ($this->counter + 1 < 0) {
-                throw new \Exception("Negative counter");
-            }
-
-            $this->counter = $this->counter + 1;
-        } else {
-            throw new \Exception("Invalid price");
-        }
+        ProductValidator::canIncrementCounter($this);
+        $this->counter++;
     }
 
     /**
@@ -136,17 +136,7 @@ class Product
      */
     public function changePriceTo(?BigDecimal $newPrice): void
     {
-        if ($this->counter === null) {
-            throw new \Exception("null counter");
-        }
-
-        if ($this->counter > 0) {
-            if ($newPrice === null) {
-                throw new \Exception("new price null");
-            }
-
-            $this->price = $newPrice;
-        }
+        ProductEditor::changePriceTo($this, $newPrice);
     }
 
     /**
@@ -156,24 +146,18 @@ class Product
      */
     public function replaceCharFromDesc(?string $charToReplace, ?string $replaceWith): void
     {
-        if ($this->longDesc === null || empty($this->longDesc) || $this->desc === null || empty($this->desc)) {
-            throw new \Exception("null or empty desc");
-        }
-
-        $this->longDesc = str_replace($charToReplace, $replaceWith, $this->longDesc);
-        $this->desc = str_replace($charToReplace, $replaceWith, $this->desc);
+       ProductEditor::replaceCharFromDesc($charToReplace, $replaceWith, $this);
     }
 
     /**
      * @return string
      */
-    public function formatDesc(): string {
-        if ($this->longDesc === null || empty($this->longDesc) || $this->desc === null || empty($this->desc)) {
-            return "";
-        }
-
-        return $this->desc . " *** " . $this->longDesc;
+    public function formatDesc(): string
+    {
+        return ProductEditor::formatDesc($this);
     }
+
+
 }
 
 
